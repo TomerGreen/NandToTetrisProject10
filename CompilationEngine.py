@@ -58,7 +58,45 @@ class CompilationEngine:
         self.tokenizer.advance()
         self.compileParameterList()
         self.writeNode()  # Writes )
+        self.tokenizer.advance()
+        self.writeNode()  # Writes {
+        self.tokenizer.advance()
+        self.compileSubroutineBody()
+        self.writeNode()  # Writes }
+        self.current_node = parent
 
     def compileParameterList(self):
         """Writes the parameter list to the xml tree not including parentheses."""
+        parent = self.current_node
+        self.current_node = et.SubElement(self.current_node, 'parameterList')
+        if self.tokenizer.tokenVal != ')':
+            self.writeNode()  # Writes the first parameter
+            self.tokenizer.advance()
+        while self.tokenizer.tokenVal != ')':
+            self.writeNode()  # Writes ,
+            self.tokenizer.advance()
+            self.writeNode()  # Writes the parameter
+            self.tokenizer.advance()
+        self.current_node = parent
 
+    def compileSubroutineBody(self):
+        """Writes the subroutine body to the xml not including { and }"""
+        parent = self.current_node
+        self.current_node = et.SubElement(self.current_node, 'subroutineBody')
+        while self.tokenizer.tokenVal == 'var'
+            self.compileVarDec()
+            self.tokenizer.advance()
+        while self.tokenizer.tokenVal != '}'
+            self.compileStatements()
+            self.tokenizer.advance()  ########### IMPORTANT: I ADVANCE PAST THE STATEMENT BECAUSE compilesubroutinedec writes the }
+        self.current_node = parent
+
+    def compileVarDec(self):
+        """Writes a varDec node to the xml tree"""
+        parent = self.current_node
+        self.current_node = et.SubElement(self.current_node, 'varDec')
+        while self.tokenizer.tokenVal != ';':
+            self.writeNode()  # Writes var, type, ',' or varName
+            self.tokenizer.advance()
+        self.writeNode()  # Writes ';'
+        self.current_node = parent
