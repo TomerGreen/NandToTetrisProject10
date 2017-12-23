@@ -28,8 +28,8 @@ class JackTokenizer:
         self._fileReader = open(filename, 'r')
         self._lines = self._fileReader.readlines()
         self._tokens = self._tokenizer(self._lines)
-        self._currentTokenType = co.TOKEN_ERROR
-        self._currentValue = ''
+        self.tokenType = co.TOKEN_ERROR
+        self.tokenVal = ''
 
     ############################################################
     # private methods
@@ -117,7 +117,6 @@ class JackTokenizer:
                     tokenList.append((co.KEYWORD, value))
                 else:
                     tokenList.append(self._identifyToken(word))
-
         return tokenList
 
     ############################################################
@@ -141,8 +140,8 @@ class JackTokenizer:
         """
         if self.hasMoreTokens() == True:
             newToken = self._tokens.pop(0)
-            self._currentTokenType = newToken[0]
-            self._currentValue = newToken[1]
+            self.tokenType = newToken[0]
+            self.tokenVal = newToken[1]
         else:
             return co.TOKEN_ERROR
 
@@ -150,10 +149,10 @@ class JackTokenizer:
         """
         :return: the type of the current token
         """
-        return self._currentTokenType
+        return self.tokenType
 
     def currentValue(self):
         """
         :return: return current value
         """
-        return self._currentValue
+        return self.tokenVal
