@@ -6,17 +6,27 @@ class CompilationEngine:
 
     def __init__(self, filename):
         self.tokenizer = JackTokenizer.JackTokenizer(filename)
+        ############# REMOVE ####################
+        
+        #########################################
         # Keeps track of the current node we're writing to. Initialized as 'class' node.
         self.current_node = et.Element('class')
-        # The xml tree that the engine builds
-        self.tree = et.ElementTree()._setroot(self.current_node)
+        # The root of the xml tree that the engine builds
+        self.root = self.current_node
 
     def writeNode(self, tag = None, text = None):
         """Writes the current token as an xml node under the current node."""
         if tag is None and text is None:
-            et.SubElement(self.current_node, self.tokenizer.tokenType, text=str(self.tokenizer.tokenVal))
-        else:
-            et.SubElement(self.current_node, tag, text=text)
+            tag = str(self.tokenizer.tokenType)
+            text = str(self.tokenizer.tokenVal)
+        # REMOVE!!!!!!!!
+        #####################
+        elementDict = {"1": 'keyword', "2": 'symbol', "3": 'integerConstant', "4": 'stringConstant', "5":'identifier'}
+        tag = elementDict[str(tag)]
+        ######################
+        newNode = et.SubElement(self.current_node, str(tag))
+        newNode.text = str(text)
+        print(newNode.text)
 
     def compileClass(self):
         self.tokenizer.advance()
@@ -45,7 +55,6 @@ class CompilationEngine:
         parent = self.current_node
         self.current_node = et.SubElement(self.current_node, 'classVarDec')
         while self.tokenizer.tokenVal != ';':
-            print(self.tokenizer.tokenVal)
             self.writeNode()
             self.tokenizer.advance()
         self.writeNode()  # Writes ;
@@ -75,13 +84,17 @@ class CompilationEngine:
         parent = self.current_node
         self.current_node = et.SubElement(self.current_node, 'parameterList')
         if self.tokenizer.tokenVal != ')':
-            self.writeNode()  # Writes the first parameter
-            self.tokenizer.advance()
+            self.writeNode()  # Writes the first parameter type
+            self.tokenizer.advance()  # Advances to first parameter value
+            self.writeNode()  # Writes the first parameter value
+            self.tokenizer.advance()  # Advances to ) or to ,
         while self.tokenizer.tokenVal != ')':
             self.writeNode()  # Writes ,
             self.tokenizer.advance()
-            self.writeNode()  # Writes the parameter
+            self.writeNode()  # Writes the parameter type
             self.tokenizer.advance()
+            self.writeNode()  # Writes the parameter value
+            self.tokenizer.advance()  # Advances to , or )
         self.current_node = parent
 
     def compileSubroutineBody(self):
@@ -169,6 +182,8 @@ class CompilationEngine:
         self.compileExpression()  # Finishes at )
         self.writeNode()  # Writes )
         self.tokenizer.advance()  # Advances to {
+        self.writeNode()  # Writes {
+        self.tokenizer.advance()  # Advances to statements block.
         self.compileStatements()  # When this finishes the current token is }
         self.writeNode()  # Writes }
         self.tokenizer.advance()  # Advances to 'else' or to another statement or to } ending the statements block.
@@ -257,6 +272,10 @@ class CompilationEngine:
         parent = self.current_node
         self.current_node = et.SubElement(self.current_node, 'term')
 
+        print('firstVal is ' + firstVal)
+        print('firstType is ' + str(firstType))
+        print('secondVal is ' + secondVal)
+        print('secondType is ' + str(secondType))
         # Handles unaryOp term
         if firstVal in ['-', '~']:
             self.writeNode(firstType, firstVal)
@@ -283,6 +302,7 @@ class CompilationEngine:
 
         # Handles subroutineCall
         elif firstType == 'identifier' and secondVal in ['.', '(']:
+            print("made it")
             # When this is called the current token is the SECOND token in the subroutineCall.
             # When this finishes the current token is the last token in the subroutine call
             self.compileSubroutineCall(firstType, firstVal)
@@ -302,6 +322,7 @@ class CompilationEngine:
         self.writeNode(firstType, firstVal) # Writes a subroutineName, className or varName.
         self.writeNode()  # Writes ( or .
         if self.tokenizer.tokenVal == '.':
+            print("Made it to relevant clause.")
             self.tokenizer.advance()  # Advances to subroutineName
             self.writeNode()  # Writes subroutineName
             self.tokenizer.advance()  # Advances to (
