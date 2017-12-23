@@ -6,7 +6,7 @@ STRING = 'stringConstant'
 INTEGER = 'integerConstant'
 IDENTIFIER = 'identifier'
 
-
+# my tokenizer  VV
 
 class JackTokenizer:
 
@@ -23,9 +23,19 @@ class JackTokenizer:
         self.inputFile = open(inputFile, 'r')
         self.lines = self.inputFile.read()
         self.tokens = list()
-        self.curr = ""
+        self.tokenData = ""
 
-
+    def distinct_token(self, token):
+        if re.match(self.WORD_REGEX, token):
+            return "keyword", token
+        elif re.match(self.IDENTIFIER_REGEX, token):
+            return "identifier", token
+        elif re.match(self.STRING_REGEX, token):
+            return "string", token[1:-1]
+        elif re.match(self.INTEGER_REGEX, token):
+            return "integer", token
+        elif re.match(self.SYMBOL_REGEX, token):
+            return "symbol", token
 
 
     def remove_comments(self):
@@ -116,37 +126,14 @@ class JackTokenizer:
         :return:
         """
         if self.hasMoreTokens():
-            self.tokens.pop(0)
-            self.curr = self.tokens[0]
-        else:
-            return 0
+            self.tokenData =  self.tokens.pop(0)
 
-    def tokenVal(self, token):
-        if re.match(self.WORD_REGEX, token):
-            return "keyword", token
-        elif re.match(self.IDENTIFIER_REGEX, token):
-            return "identifier", token
-        elif re.match(self.STRING_REGEX, token):
-            return "string", token[1:-1]
-        elif re.match(self.INTEGER_REGEX, token):
-            return "integer", token
-        elif re.match(self.SYMBOL_REGEX, token):
-            return "symbol", token
 
-    # def keyWord(self, token):
-    #     if self.tokenType(token)[0] == 'keyword':
-    #
-    #
-    #
-    #
-    # def symbol(self):
-    #     pass
-    #
-    # def identifier(self):
-    #     pass
-    #
-    # def intVal(self):
-    #     pass
-    #
-    # def stringVal(self):
-    #     pass
+
+
+    def tokenVal(self):
+        return self.tokenData[1]
+
+    def tokenType(self):
+        return self.tokenData[0]
+
