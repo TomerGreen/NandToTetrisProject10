@@ -6,15 +6,6 @@ class CompilationEngine:
 
     def __init__(self, filename):
         self.tokenizer = JackTokenizer.JackTokenizer(filename)
-        ############# REMOVE ####################
-        elementDict = {"1": 'keyword', "2": 'symbol', "3": 'integerConstant', "4": 'stringConstant', "5": 'identifier'}
-        new_tokens = list()
-        for token in self.tokenizer._tokens:
-            new_type = elementDict[str(token[0])]
-            new_token = (new_type, token[1])
-            new_tokens.append(new_token)
-        self.tokenizer._tokens = new_tokens
-        #########################################
         # Keeps track of the current node we're writing to. Initialized as 'class' node.
         self.current_node = et.Element('class')
         # The root of the xml tree that the engine builds
@@ -27,7 +18,6 @@ class CompilationEngine:
             text = str(self.tokenizer.tokenVal)
         newNode = et.SubElement(self.current_node, str(tag))
         newNode.text = str(text)
-        print(newNode.text)
 
     def compileClass(self):
         self.tokenizer.advance()
