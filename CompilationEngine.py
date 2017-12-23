@@ -122,8 +122,7 @@ class CompilationEngine:
                 self.compileLet()
                 self.tokenizer.advance()  # Advances to another statement token or to }.
             elif self.tokenizer.tokenVal == 'if':
-                self.compileIf()
-                self.tokenizer.advance()
+                self.compileIf()  # Finishes at next statement or at }
             elif self.tokenizer.tokenVal == 'while':
                 self.compileWhile()
                 self.tokenizer.advance()  # Advances to another statement token or to }.
@@ -148,32 +147,101 @@ class CompilationEngine:
         if self.tokenizer.tokenVal == '[':
             self.writeNode()  # Writes [
             self.tokenizer.advance()  # Advances to first token of an expression
-            self.compileExpression()  # When this finishes the current token is the last token of expression
-            self.tokenizer.advance()  # Advances to the first token of an expression, or to ]
+            self.compileExpression()  # When this finishes the current token is the one after the expression
             self.writeNode()  # Writes ]
             self.tokenizer.advance()  # Advances to =
         self.writeNode()  # Writes =
         self.tokenizer.advance()  # Advances to expression
-        self.compileExpression()
-        self.tokenizer.advance()  # Advances to ;
+        self.compileExpression()  # Finishes at ;
         self.writeNode()  # Writes ;
         self.current_node = parent
 
     def compileIf(self):
         """Writes an 'if' subtree to the xml tree.
         When this is called the current token is 'if'.
-        When this finishes the current token is } ending the if or the else."""
+        When this finishes the current token is the one AFTER the closing } or the if or else clause."""
         parent = self.current_node
         self.current_node = et.SubElement(self.current_node, 'ifStatement')
         self.writeNode()  # Writes 'if'.
+        self.tokenizer.advance()  # Advances to (
+        self.writeNode()  # Writes (
+        self.tokenizer.advance()  # Advances to expression
+        self.compileExpression()  # Finishes at )
+        self.writeNode()  # Writes )
+        self.tokenizer.advance()  # Advances to {
+        self.compileStatements()  # When this finishes the current token is }
+        self.writeNode()  # Writes }
+        self.tokenizer.advance()  # Advances to 'else' or to another statement or to } ending the statements block.
+        if self.tokenizer.tokenVal == 'else':
+            self.writeNode()  # Writes 'else'
+            self.tokenizer.advance()  # Advances to {
+            self.writeNode()  # Writes {
+            self.tokenizer.advance()  # Advances to a statements block
+            self.compileStatements()  # Ends at }
+            self.writeNode()  # Writes }
+            self.tokenizer.advance()  # Advances to a new statement or to the } after the statements block.
+        self.current_node = parent
+
+    def compileWhile(self):
+        """Writes a while node to the xml tree.
+        When this is called the current token is 'while'.
+        When this finishes the current token is the } closing the while clause."""
+        parent = self.current_node
+        self.current_node = et.SubElement(self.current_node, 'whileStatement')
+        self.writeNode()  # Writes 'while'
+        self.tokenizer.advance()  # Advances to (
+        self.writeNode()  # Writes (
+        self.tokenizer.advance()  # Advances to the first token in an expression.
+        self.compileExpression()  # Ends at )
+        self.writeNode()  # Writes )
+        self.tokenizer.advance()  # Advances to {
+        self.writeNode()  # Writes {
+        self.tokenizer.advance()  # Advances to a statements block.
+        self.compileStatements()  # Ends at the } closing the while clause.
+        self.writeNode()  # Writes }.
+        self.current_node = parent
+
+    def compileDo(self):
+        """Writes a 'doStatement' node to the xml tree.
+        When this is called the current token is 'do'.
+        When this finishes the current token is the ; ending the do statement."""
+        parent = self.current_node
+        self.current_node = et.SubElement(self.current_node, 'doStatement')
+        self.writeNode()  # Writes 'do'.
+        self.tokenizer.advance()  # Advances to first token in a subroutine call.
+        firstType = self.tokenizer.tokenType
+        firstVal = self.tokenizer.tokenVal
+        self.tokenizer.advance()  # Advances to the second token in the subroutine call.
+        self.compileSubroutineCall(firstType, firstVal)  # Starts at second token and ends at the last token of call.
+        self.tokenizer.advance()  # Advances to ;
+        self.writeNode()  # Writes ;
+        self.current_node = parent
+
+    def compileReturn(self):
+        """Writes a 'returnStatement' node to the xml tree.
+        When this is called the current token is 'return'.
+        When this finishes the current token is the ; ending the return statement."""
+        parent = self.current_node
+        self.current_node = et.SubElement(self.current_node, 'returnStatement')
+        self.writeNode()  # Writes 'return'
+        self.tokenizer.advance()  # Advances to ; or to an expression.
+        if self.tokenizer.tokenVal != ';':
+            self.compileExpression()  # Finishes when current token is ;
+        self.writeNode()  # Writes ;
+        self.current_node = parent
 
     def compileExpression(self):
-        """Writes an expression subtree to the xml tree.
+        """Writes an expression node to the xml tree.
         When this is called the current token is the first token of the expression
-        When this finishes the current token is the first toke AFTER expression."""
+        When this finishes the current token is the first token AFTER expression."""
         parent = self.current_node
         self.current_node = et.SubElement(self.current_node, 'expression')
-        self.compileTerm()
+        self.compileTerm()  # When this finishes the current token is either an operator or: ')', ';' or ']'.
+        while self.tokenizer.tokenVal in ['+', '-', '*', '/', '&', '|', '<', '>', '=']:
+            self.writeNode()  # Writes the operator
+            self.tokenizer.advance()  # Advances to the first token in a term.
+            self.compileTerm()  # When this finishes the current token is an operator or ')', ';' or ']'.
+        self.current_node = parent
 
     def compileTerm(self):
         """Writes a term subtree to the xml tree.
@@ -216,8 +284,9 @@ class CompilationEngine:
         # Handles subroutineCall
         elif firstType == 'identifier' and secondVal in ['.', '(']:
             # When this is called the current token is the SECOND token in the subroutineCall.
-            # When this finishes the current token is ..........
+            # When this finishes the current token is the last token in the subroutine call
             self.compileSubroutineCall(firstType, firstVal)
+            self.tokenizer.advance()  # Advances to the token after the ) that ends the subroutineCall
 
         # Handles varName
         else:
@@ -228,7 +297,8 @@ class CompilationEngine:
     def compileSubroutineCall(self, firstType, firstVal):
         """Writes a subroutine call to the xml tree.
         This does not write a subroutineCall node. The nodes this creates are written in sequence under current node.
-        When this is called the current token is the SECOND token of the subroutine call."""
+        When this is called the current token is the SECOND token of the subroutine call.
+        When this finishes the current token is the ) that marks the end of the subroutine call expression list."""
         self.writeNode(firstType, firstVal) # Writes a subroutineName, className or varName.
         self.writeNode()  # Writes ( or .
         if self.tokenizer.tokenVal == '.':
@@ -236,11 +306,25 @@ class CompilationEngine:
             self.writeNode()  # Writes subroutineName
             self.tokenizer.advance()  # Advances to (
             self.writeNode()  # Writes (
-        # At this point the current token is expressionList.
+        self.tokenizer.advance()
+        # At this point the current token is the first token in expressionList, or ) if the list is empty.
         self.compileExpressionList()
+        self.writeNode()  # Writes )
 
     def compileExpressionList(self):
-        """"""
+        """Writes an expressionList node to the xml tree.
+        When this is called the current token is the first token in expressionList or ) if it's empty.
+        When this finishes the current token is ).
+        """
+        parent = self.current_node
+        self.current_node = et.SubElement(self.current_node, 'expressionList')
+        if self.tokenizer.tokenVal != ')':
+            self.compileExpression()  # When this finishes the current token is either , or )
+        while self.tokenizer.tokenVal != ')':
+            self.writeNode()  # Writes ,
+            self.tokenizer.advance()  # Advances to a new expression.
+            self.compileExpression()  # After this current node is , or )
+        self.current_node = parent
 
 
 
