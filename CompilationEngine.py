@@ -7,7 +7,13 @@ class CompilationEngine:
     def __init__(self, filename):
         self.tokenizer = JackTokenizer.JackTokenizer(filename)
         ############# REMOVE ####################
-        
+        elementDict = {"1": 'keyword', "2": 'symbol', "3": 'integerConstant', "4": 'stringConstant', "5": 'identifier'}
+        new_tokens = list()
+        for token in self.tokenizer._tokens:
+            new_type = elementDict[str(token[0])]
+            new_token = (new_type, token[1])
+            new_tokens.append(new_token)
+        self.tokenizer._tokens = new_tokens
         #########################################
         # Keeps track of the current node we're writing to. Initialized as 'class' node.
         self.current_node = et.Element('class')
@@ -19,11 +25,6 @@ class CompilationEngine:
         if tag is None and text is None:
             tag = str(self.tokenizer.tokenType)
             text = str(self.tokenizer.tokenVal)
-        # REMOVE!!!!!!!!
-        #####################
-        elementDict = {"1": 'keyword', "2": 'symbol', "3": 'integerConstant', "4": 'stringConstant', "5":'identifier'}
-        tag = elementDict[str(tag)]
-        ######################
         newNode = et.SubElement(self.current_node, str(tag))
         newNode.text = str(text)
         print(newNode.text)
@@ -272,10 +273,6 @@ class CompilationEngine:
         parent = self.current_node
         self.current_node = et.SubElement(self.current_node, 'term')
 
-        print('firstVal is ' + firstVal)
-        print('firstType is ' + str(firstType))
-        print('secondVal is ' + secondVal)
-        print('secondType is ' + str(secondType))
         # Handles unaryOp term
         if firstVal in ['-', '~']:
             self.writeNode(firstType, firstVal)
@@ -292,17 +289,17 @@ class CompilationEngine:
             self.writeNode()  # Writes )
             self.tokenizer.advance()  # Advances to token after the term.
 
-        # Handles varName [expression]
+        # Handles varName[expression]
         elif secondVal == '[':
             self.writeNode(firstType, firstVal)  # Writes varName
             self.writeNode()  # Writes [
+            self.tokenizer.advance()  # Advances to beginning of expression.
             self.compileExpression()  # When this finishes the current token is ]
             self.writeNode()  # Writes ]
             self.tokenizer.advance()  # Advances to token after term.
 
         # Handles subroutineCall
         elif firstType == 'identifier' and secondVal in ['.', '(']:
-            print("made it")
             # When this is called the current token is the SECOND token in the subroutineCall.
             # When this finishes the current token is the last token in the subroutine call
             self.compileSubroutineCall(firstType, firstVal)
@@ -322,7 +319,6 @@ class CompilationEngine:
         self.writeNode(firstType, firstVal) # Writes a subroutineName, className or varName.
         self.writeNode()  # Writes ( or .
         if self.tokenizer.tokenVal == '.':
-            print("Made it to relevant clause.")
             self.tokenizer.advance()  # Advances to subroutineName
             self.writeNode()  # Writes subroutineName
             self.tokenizer.advance()  # Advances to (
