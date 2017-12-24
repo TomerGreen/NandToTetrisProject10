@@ -70,9 +70,11 @@ class JackTokenizer:
             else:
                 text_with_no_comments += self.lines[i]
         self.lines = text_with_no_comments
+        return self.lines
 
 
     def tokenizer(self, lines):
+        self.lines = self.remove_comments()
         filter_lines = self.LEXICAL_ANALYSIS.findall(self.lines)
         token_list = []
         for word in filter_lines:
