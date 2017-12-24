@@ -12,6 +12,7 @@ class JackTokenizer:
 
     symbol_dict = {"<": "&lt;", ">": "&gt;", "&": "&amp;"}
 
+
     INTEGER_REGEX = '\d+'
     STRING_REGEX = '"[^"\n]*."'
     SYMBOL_REGEX = '(\[\]\\\*<>=~|&{}\(\)\.,;\+-)'
@@ -25,7 +26,7 @@ class JackTokenizer:
 
 
     "Opens the input file/stream and gets ready to tokenize it."
-    def ___init___(self, inputFile):
+    def __init__(self, inputFile):
         self.inputFile = open(inputFile, 'r')
         self.lines = self.inputFile.read()
         self.tokens = list()
@@ -95,9 +96,12 @@ class JackTokenizer:
         :return:
         """
         if self.hasMoreTokens():
-            pass
+            tokenData = self.tokens.pop()
+            self.tokenVal = tokenData[1]
+            self.tokenType = tokenData[0]
+
     def tokenVal(self):
-        return self.tokenData[1]
+        return self.tokenVal
 
     def tokenType(self):
-        return self.tokenData[0]
+        return self.tokenType

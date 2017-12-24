@@ -219,7 +219,7 @@ class CompilationEngine:
         firstVal = self.tokenizer.tokenVal
         self.tokenizer.advance()  # Advances to the second token in the subroutine call.
         self.compileSubroutineCall(firstType, firstVal)  # Starts at second token and ends at the last token of call.
-        self.tokenizer.advance()  # Advances to ;
+        self.tokenizer.advance()  # Advances to;
         self.writeNode()  # Writes ;
         self.current_node = parent
 
