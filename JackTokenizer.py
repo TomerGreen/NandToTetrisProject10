@@ -34,21 +34,21 @@ class JackTokenizer:
         """
         self.inputFile = open(inputFile, 'r')
         self.lines = self.inputFile.read()
-        self.tokens = self.tokenizer(lines)
+        self.tokens = self.tokenizer(self.lines)
         self.tokenType = ""
         self.tokenVal = ""
 
     def distinct_token(self, token):
         if re.match(self.WORD_REGEX, token):
-            return "keyword", token
+            return self.KEYWORD, token
         elif re.match(self.IDENTIFIER_REGEX, token):
-            return "identifier", token
+            return self.IDENTIFIER, token
         elif re.match(self.STRING_REGEX, token):
-            return "string", token[1:-1]
+            return self.STRING, token[1:-1]
         elif re.match(self.INTEGER_REGEX, token):
-            return "integer", token
+            return self.INTEGER, token
         elif re.match(self.SYMBOL_REGEX, token):
-            return "symbol", token
+            return self.SYMBOL, token
 
 
     def remove_comments(self):
