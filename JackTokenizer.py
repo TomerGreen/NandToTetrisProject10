@@ -33,7 +33,7 @@ class JackTokenizer:
         """
         self.inputFile = open(inputFile, 'r')
         self.lines = self.inputFile.read()
-        self.tokens = self.tokenizer(self.lines)
+        self.tokens = self.tokenizer()
         self.tokenType = ""
         self.tokenVal = ""
 
@@ -55,14 +55,12 @@ class JackTokenizer:
         for i in range(len(self.lines)):
             char = self.lines[i]
             if char == "\"":
-                # end = self.lines.find("\"", i + 1)
-                text_with_no_comments += self.lines[i: + 1]
+                end = self.lines.find("\"", i +1)
+                text_with_no_comments += self.lines[i:end + 1]
             elif char == "/":
                 if self.lines[i + 1] == "/":
-                    # end = self.lines.find("\n", i + 1)
                     text_with_no_comments += " "
                 elif self.lines[i + 1] == "*":
-                    # end = self.lines.find("*/", i + 1)
                     text_with_no_comments += " "
                 else:
                     text_with_no_comments += self.lines[i]
@@ -72,7 +70,7 @@ class JackTokenizer:
         return self.lines
 
 
-    def tokenizer(self, lines):
+    def tokenizer(self):
         self.lines = self.remove_comments()
         filter_lines = self.LEXICAL_ANALYSIS.findall(self.lines)
         token_list = []
@@ -110,3 +108,4 @@ class JackTokenizer:
 
 
 #test
+#push
