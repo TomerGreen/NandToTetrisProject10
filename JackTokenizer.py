@@ -34,7 +34,7 @@ class JackTokenizer:
         """
         self.inputFile = open(inputFile, 'r')
         self.lines = self.inputFile.read()
-        self.tokens = self.tokenizer(lines)
+        self.tokens = self.tokenizer(self.lines)
         self.tokenType = ""
         self.tokenVal = ""
 
