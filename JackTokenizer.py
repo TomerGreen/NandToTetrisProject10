@@ -56,14 +56,14 @@ class JackTokenizer:
         for i in range(len(self.lines)):
             char = self.lines[i]
             if char == "\"":
-                end = self.lines.find("\"", i + 1)
+                # end = self.lines.find("\"", i + 1)
                 text_with_no_comments += self.lines[i: + 1]
             elif char == "/":
                 if self.lines[i + 1] == "/":
-                    end = self.lines.find("\n", i + 1)
+                    # end = self.lines.find("\n", i + 1)
                     text_with_no_comments += " "
                 elif self.lines[i + 1] == "*":
-                    enc = self.lines.find("*/", i + 1)
+                    # end = self.lines.find("*/", i + 1)
                     text_with_no_comments += " "
                 else:
                     text_with_no_comments += self.lines[i]
