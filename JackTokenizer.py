@@ -22,8 +22,7 @@ class JackTokenizer:
                  '|this|let|do|if|else|while|return))'
     LEXICAL_ANALYSIS = re.compile('{}|{}|{}|{}|{}'.format(re.escape(
         WORD_REGEX), re.escape(SYMBOL_REGEX), re.escape(INTEGER_REGEX),
-                                           re.escape(STRING_REGEX),
-                                            re.escape(IDENTIFIER_REGEX)))
+                re.escape(STRING_REGEX), re.escape(IDENTIFIER_REGEX)))
 
 
     def __init__(self, inputFile):
@@ -50,6 +49,16 @@ class JackTokenizer:
             return self.SYMBOL, token
 
 
+    def find_all(self, line):
+        filter_lines = self.LEXICAL_ANALYSIS.findall(line)
+        retWords = []
+        for word in filter_lines:
+            for subWord in word:
+                if subWord not in ['', '\t', '\n', ' ', '\r']:
+                    retWords.append(subWord)
+        return retWords
+
+
     def remove_comments(self):
         text_with_no_comments = ''
         for i in range(len(self.lines)):
@@ -72,10 +81,11 @@ class JackTokenizer:
 
     def tokenizer(self):
         self.lines = self.remove_comments()
-        filter_lines = self.LEXICAL_ANALYSIS.findall(self.lines)
         token_list = []
-        for word in filter_lines:
-            token_list.append(self.distinct_token(word))
+        for line in self.lines:
+            words = self.find_all(line)
+            for word in words:
+                token_list.append(self.distinct_token(word))
         return token_list
 
     def hasMoreTokens(self):
