@@ -10,8 +10,6 @@ class JackTokenizer:
     INTEGER = 'integerConstant'
     IDENTIFIER = 'identifier'
 
-    symbol_dict = {"<": "&lt;", ">": "&gt;", "&": "&amp;"}
-
 
     INTEGER_REGEX = '(\d+)'
     STRING_REGEX = '("[^"\n]*.")'
@@ -20,10 +18,6 @@ class JackTokenizer:
     WORD_REGEX = '((class)|(constructor)|(function)|(method)|(field)|(static)' \
                  '|(var)|(int)|(char)|(boolean)|(void)|(true)|(false)|(null)' \
                  '|this|let|do|if|else|while|return))'
-
-    PAT_REGEX = re.compile(
-        r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"',
-        re.DOTALL | re.MULTILINE)
     LEXICAL_ANALYSIS = re.compile('{}|{}|{}|{}|{}'.format(re.escape(
         WORD_REGEX), re.escape(SYMBOL_REGEX), re.escape(INTEGER_REGEX),
                 re.escape(STRING_REGEX), re.escape(IDENTIFIER_REGEX)))
@@ -36,7 +30,7 @@ class JackTokenizer:
         """
         self.inputFile = open(inputFile, 'r')
         self.lines = self.inputFile.read()
-        self.tokens = self.tokenizer(self.lines)
+        self.tokens = self.tokenizer()
         self.tokenType = ""
         self.tokenVal = ""
 
@@ -52,48 +46,42 @@ class JackTokenizer:
         elif re.match(self.SYMBOL_REGEX, token):
             return self.SYMBOL, token
 
-    def remove_comments(self, lines):
+    def remove_comments(self):
         text_with_no_comments = ''
-        for line in lines:
-            text_with_no_comments += line
+        for i in range(len(self.lines)):
+            char = self.lines[i]
+            if char == "\"":
+                end = self.lines.find("\"", i +1)
+                text_with_no_comments += self.lines[i:end + 1]
+            elif char == "/":
+                if self.lines[i + 1] == "/":
+                    text_with_no_comments += " "
+                elif self.lines[i + 1] == "*":
+                    text_with_no_comments += " "
+                else:
+                    text_with_no_comments += self.lines[i]
+            else:
+                text_with_no_comments += self.lines[i]
+        return = text_with_no_comments
 
-        def replacer(match):
-            s = match.group(0)
-            if s.startswith('/'):
-                return " "
-            return s
-
-        longline = re.sub(self.PAT_REGEX, replacer, lines)
-        lines = longline.split("\n")
-        return lines
-
-
-            # for i in range(len(self.lines)):
-        #     char = self.lines[i]
-        #     if char == "\"":
-        #         end = self.lines.find("\"", i +1)
-        #         text_with_no_comments += self.lines[i:end + 1]
-        #     elif char == "/":
-        #         if self.lines[i + 1] == "/":
-        #             text_with_no_comments += " "
-        #         elif self.lines[i + 1] == "*":
-        #             text_with_no_comments += " "
-        #         else:
-        #             text_with_no_comments += self.lines[i]
-        #     else:
-        #         text_with_no_comments += self.lines[i]
-        # self.lines = text_with_no_comments
-        # return self.lines
-
-
-    def tokenizer(self, lines):
-        filter_lines = self.remove_comments(lines)
+    def tokenizer(self):
+        self.lines = self.remove_comments()
+        filter = self.LEXICAL_ANALYSIS.findall(self.lines)
         token_list = []
-        for line in filter_lines:
-            words = self.LEXICAL_ANALYSIS.findall(line)
-            for word in words:
-                token_list.append(self.distinct_token(word))
+        for line in filter:
+            token_list.append(self.distinct_token(line))
         return token_list
+
+    def replace(self):
+        for token in self.tokens:
+            if token[1] == '&':
+                return token[0], '&amp;'
+            elif token[1] == '"':
+                return token[0],'&quot;'
+            elif token[1] == '>':
+                return token[0], '&gt;'
+            elif token[1] == '<':
+                return token[0],'&lt'
 
     def hasMoreTokens(self):
         """
