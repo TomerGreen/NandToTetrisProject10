@@ -23,8 +23,7 @@ class JackTokenizer:
     LEXICAL_ANALYSIS = re.compile('{}|{}|{}|{}|{}'.format(re.escape(
         WORD_REGEX), re.escape(SYMBOL_REGEX), re.escape(INTEGER_REGEX),
                                            re.escape(STRING_REGEX),
-                                                          re.escape(
-                                                              IDENTIFIER_REGEX)))
+                                            re.escape(IDENTIFIER_REGEX)))
 
 
     def __init__(self, inputFile):
