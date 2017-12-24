@@ -100,7 +100,7 @@ class CompilationEngine:
             self.tokenizer.advance()  # This advances either to a 'var' token or to the first statement token.
         # The statements node is written whether or not there exist any statements.
         self.compileStatements()
-        self.writeNode()  #  Writes }
+        self.writeNode()  # Writes }
         self.current_node = parent
 
     def compileVarDec(self):
