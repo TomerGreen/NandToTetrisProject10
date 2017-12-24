@@ -29,7 +29,8 @@ class JackTokenizer:
         self.inputFile = open(inputFile, 'r')
         self.lines = self.inputFile.read()
         self.tokens = list()
-        self.tokenData = ""
+        self.tokenType = ""
+        self.tokenVal = ""
 
     def distinct_token(self, token):
         if re.match(self.WORD_REGEX, token):
@@ -94,11 +95,9 @@ class JackTokenizer:
         :return:
         """
         if self.hasMoreTokens():
-            self.tokenData = self.tokens.pop(0)
-
+            pass
     def tokenVal(self):
         return self.tokenData[1]
 
     def tokenType(self):
         return self.tokenData[0]
-
