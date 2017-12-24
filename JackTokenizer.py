@@ -20,16 +20,21 @@ class JackTokenizer:
     WORD_REGEX = '((class)|(constructor)|(function)|(method)|(field)|(static)' \
                  '|(var)|(int)|(char)|(boolean)|(void)|(true)|(false)|(null)' \
                  '|this|let|do|if|else|while|return))'
-    LEXICAL_ANALYSIS = re.compile('{}|{}|{}|{}|{}'.format(WORD_REGEX,
-                                      SYMBOL_REGEX, INTEGER_REGEX,
-                                           STRING_REGEX, IDENTIFIER_REGEX))
+    LEXICAL_ANALYSIS = re.compile('{}|{}|{}|{}|{}'.format(re.escape(
+        WORD_REGEX), re.escape(SYMBOL_REGEX), re.escape(INTEGER_REGEX),
+                                           re.escape(STRING_REGEX),
+                                                          re.escape(
+                                                              IDENTIFIER_REGEX)))
 
 
-    "Opens the input file/stream and gets ready to tokenize it."
     def __init__(self, inputFile):
+        """
+        Opens the input file/stream and gets ready to tokenize it.
+        :param inputFile:
+        """
         self.inputFile = open(inputFile, 'r')
         self.lines = self.inputFile.read()
-        self.tokens = list()
+        self.tokens = self.tokenizer(lines)
         self.tokenType = ""
         self.tokenVal = ""
 
@@ -47,37 +52,32 @@ class JackTokenizer:
 
 
     def remove_comments(self):
-        currentIndex = 0
         text_with_no_comments = ''
-        while currentIndex < len(self.lines):
-            currentChar = self.lines[currentIndex]
-            if currentChar == "\"":
-                endIndex = self.lines.find("\"", currentIndex + 1)
-                text_with_no_comments += self.lines[currentIndex:endIndex + 1]
-                currentIndex = endIndex + 1
-            elif currentChar == "/":
-                if self.lines[currentIndex + 1] == "/":
-                    endIndex = self.lines.find("\n", currentIndex + 1)
-                    currentIndex = endIndex + 1
+        for i in range(len(self.lines)):
+            char = self.lines[i]
+            if char == "\"":
+                end = self.lines.find("\"", i + 1)
+                text_with_no_comments += self.lines[i: + 1]
+            elif char == "/":
+                if self.lines[i + 1] == "/":
+                    end = self.lines.find("\n", i + 1)
                     text_with_no_comments += " "
-                elif self.lines[currentIndex + 1] == "*":
-                    endIndex = self.lines.find("*/", currentIndex + 1)
-                    currentIndex = endIndex + 2
+                elif self.lines[i + 1] == "*":
+                    enc = self.lines.find("*/", i + 1)
                     text_with_no_comments += " "
                 else:
-                    text_with_no_comments += self.lines[currentIndex]
-                    currentIndex += 1
+                    text_with_no_comments += self.lines[i]
             else:
-                text_with_no_comments += self.lines[currentIndex]
-                currentIndex += 1
+                text_with_no_comments += self.lines[i]
         self.lines = text_with_no_comments
 
 
-    def tokenizer(self):
+    def tokenizer(self, lines):
         filter_lines = self.LEXICAL_ANALYSIS.findall(self.lines)
+        token_list = []
         for word in filter_lines:
-            self.tokens.append(word)
-        return self.tokens
+            token_list.append(self.distinct_token(word))
+        return token_list
 
     def hasMoreTokens(self):
         """
@@ -105,4 +105,6 @@ class JackTokenizer:
 
     def tokenType(self):
         return self.tokenType
-# test
+
+
+

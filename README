@@ -11,6 +11,8 @@ Tomer Greenberg, ID 203822994, tomer.greenberg@mail.huji.ac.il
 Submitted Files
 ---------------
 README - This file.
-.py files - the required files
+JackTokenizer.py files - the required files
+Main.py
+ComplilationEngine.py
 Makefile - the make file
 JackAnalyzer - the running file
