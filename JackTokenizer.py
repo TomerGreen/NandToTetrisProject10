@@ -11,17 +11,16 @@ class JackTokenizer:
     IDENTIFIER = 'identifier'
 
 
-    INTEGER_REGEX = '(\d+)'
-    STRING_REGEX = '("[^"\n]*.")'
-    SYMBOL_REGEX = '(\[\]\\\*<>=~|&{}\(\)\.,;\+-)'
-    IDENTIFIER_REGEX = '([\w_]*)'
-    WORD_REGEX = '(class|constructor|function|method|field|static' \
-                 '|var|int|char|boolean|void|true|false|null' \
-                 '|this|let|do|if|else|while|return)'
-    LEXICAL_ANALYSIS = re.compile('{}|{}|{}|{}|{}'.format(re.escape(
-        WORD_REGEX), re.escape(SYMBOL_REGEX), re.escape(INTEGER_REGEX),
-                re.escape(STRING_REGEX), re.escape(IDENTIFIER_REGEX)))
 
+    KeywordsCodes = {"class", "constructor", "function", "method", "field", "static", "var", "int", "char", "boolean",
+                 "void", "true", "false", "null", "this", "let", "do", "if", "else", "while", "return"}
+    SymbolsCodes = {'{', '}', '(', ')', '[', ']', '.', ',', ';', '+', '-', '*', '/', '&', '<', '>', '=', '~'}
+    keywordsRegex = '(?!\w)|'.join(KeywordsCodes) + '(?!\w)'
+    symbolsRegex = '[' + re.escape('|'.join(SymbolsCodes)) + ']'
+    integerRegex = r'\d+'
+    stringsRegex = r'"[^"\n]*"'
+    identifiersRegex = r'[\w]+'
+    word = re.compile(keywordsRegex + '|' + symbolsRegex + '|' + integerRegex + '|' + stringsRegex + '|' + identifiersRegex)
 
     def __init__(self, inputFile):
         """
@@ -35,15 +34,15 @@ class JackTokenizer:
         self.tokenVal = ""
 
     def distinct_token(self, token):
-        if re.match(self.WORD_REGEX, token):
+        if re.match(self.keywordsRegex, token):
             return self.KEYWORD, token
-        elif re.match(self.IDENTIFIER_REGEX, token):
+        elif re.match(self.identifiersRegex, token):
             return self.IDENTIFIER, token
-        elif re.match(self.STRING_REGEX, token):
+        elif re.match(self.stringsRegex, token):
             return self.STRING, token[1:-1]
-        elif re.match(self.INTEGER_REGEX, token):
+        elif re.match(self.integerRegex, token):
             return self.INTEGER, token
-        elif re.match(self.SYMBOL_REGEX, token):
+        elif re.match(self.symbolsRegex, token):
             return self.SYMBOL, token
 
     def remove_comments(self):
@@ -55,7 +54,8 @@ class JackTokenizer:
             else:
                 return match.group(0)
 
-        pattern = re.compile(r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"', re.DOTALL | re.MULTILINE)
+        pattern = re.compile(r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|'
+                             r'"(?:\\.|[^\\"])*"', re.DOTALL | re.MULTILINE)
         self.lines = re.sub(pattern, ignore_normal_strings, full_text)
 
 
@@ -83,18 +83,22 @@ class JackTokenizer:
         print ("PRINTING REMOVE COMMENTS")
         self.remove_comments()
         print(self.lines)  # Prints text
-        print (type(self.LEXICAL_ANALYSIS))
+        print (type(self.word))
         print(type(self.lines
               ))
-        print(self.LEXICAL_ANALYSIS.findall(self.lines))
-
-
-
-
-        print("PRINTING FILTER")
-        print(filter)  # Prints text
+        print("debug here")
+        words = re.findall(self.word, self.lines)
+        print(type(words))
+        print(words)
+        # clean_code = ""
+        # for word in words:
+        #     for thing in word:
+        #         if len(thing) > 0:
+        #             clean_code += thing + " "
+        # print(clean_code)
         token_list = []
-        for line in filter:
+        for line in words:
+            print(line)
             token_list.append(self.distinct_token(line))
         print(token_list)
         return token_list
@@ -142,3 +146,4 @@ class JackTokenizer:
 #test
 #push
 #Wednesday afternoon
+
