@@ -28,8 +28,8 @@ class JackTokenizer:
         self._fileReader = open(filename, 'r')
         self._lines = self._fileReader.readlines()
         self._tokens = self._tokenizer(self._lines)
-        self.tokenType = co.TOKEN_ERROR
-        self.tokenVal = ''
+        self._currentTokenType = co.TOKEN_ERROR
+        self._currentValue = ''
 
     ############################################################
     # private methods
@@ -60,7 +60,6 @@ class JackTokenizer:
         :return: a list of matches
         """
         wordsInLine = co.LEXICAL_ELEMENTS_REGEX.findall(line)
-        print(wordsInLine)
         retWords = []
         for word in wordsInLine:
             for subWord in word:
@@ -86,13 +85,15 @@ class JackTokenizer:
             print(match)
             s = match.group(0)
             print("PRINTING MATCH.GROUP(0)")
+            print(s)
             if s.startswith('/'):
                 return " "  # note: a space and not an empty string
             else:
+                print("###########################\nMATCH WITHOUT /\n#########################")
                 return s
 
-        pattern = re.compile(r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"', re.DOTALL | re.MULTILINE)
-        longline = re.sub(pattern, replacr, text)
+        pattern = re.compile(r'\/\/.*?$|\/\*.*?\*\/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"', re.DOTALL | re.MULTILINE)
+        longline = re.sub(pattern, replacer, text)
         lines = longline.split("\n")
         return lines
 
@@ -123,6 +124,7 @@ class JackTokenizer:
                     tokenList.append((co.KEYWORD, value))
                 else:
                     tokenList.append(self._identifyToken(word))
+
         return tokenList
 
     ############################################################
@@ -146,8 +148,8 @@ class JackTokenizer:
         """
         if self.hasMoreTokens() == True:
             newToken = self._tokens.pop(0)
-            self.tokenType = newToken[0]
-            self.tokenVal = newToken[1]
+            self._currentTokenType = newToken[0]
+            self._currentValue = newToken[1]
         else:
             return co.TOKEN_ERROR
 
@@ -155,10 +157,10 @@ class JackTokenizer:
         """
         :return: the type of the current token
         """
-        return self.tokenType
+        return self._currentTokenType
 
     def currentValue(self):
         """
         :return: return current value
         """
-        return self.tokenVal
+        return self._currentValue

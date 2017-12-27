@@ -15,9 +15,9 @@ class JackTokenizer:
     STRING_REGEX = '("[^"\n]*.")'
     SYMBOL_REGEX = '(\[\]\\\*<>=~|&{}\(\)\.,;\+-)'
     IDENTIFIER_REGEX = '([\w_]*)'
-    WORD_REGEX = '((class)|(constructor)|(function)|(method)|(field)|(static)' \
-                 '|(var)|(int)|(char)|(boolean)|(void)|(true)|(false)|(null)' \
-                 '|this|let|do|if|else|while|return))'
+    WORD_REGEX = '(class|constructor|function|method|field|static' \
+                 '|var|int|char|boolean|void|true|false|null' \
+                 '|this|let|do|if|else|while|return)'
     LEXICAL_ANALYSIS = re.compile('{}|{}|{}|{}|{}'.format(re.escape(
         WORD_REGEX), re.escape(SYMBOL_REGEX), re.escape(INTEGER_REGEX),
                 re.escape(STRING_REGEX), re.escape(IDENTIFIER_REGEX)))
@@ -47,6 +47,20 @@ class JackTokenizer:
             return self.SYMBOL, token
 
     def remove_comments(self):
+        """Sets lines to a list of lines without comments"""
+        full_text = ''.join(self.lines)
+        def ignore_normal_strings(match):
+            if match.group(0)[0] == '/':
+                return ""
+            else:
+                return match.group(0)
+
+        pattern = re.compile(r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"', re.DOTALL | re.MULTILINE)
+        self.lines = re.sub(pattern, ignore_normal_strings, full_text)
+
+
+    """
+    def remove_comments(self):
         text_with_no_comments = ''
         for i in range(len(self.lines)):
             char = self.lines[i]
@@ -62,14 +76,27 @@ class JackTokenizer:
                     text_with_no_comments += self.lines[i]
             else:
                 text_with_no_comments += self.lines[i]
-        return = text_with_no_comments
+        return text_with_no_comments
+    """
 
     def tokenizer(self):
-        self.lines = self.remove_comments()
-        filter = self.LEXICAL_ANALYSIS.findall(self.lines)
+        print ("PRINTING REMOVE COMMENTS")
+        self.remove_comments()
+        print(self.lines)  # Prints text
+        print (type(self.LEXICAL_ANALYSIS))
+        print(type(self.lines
+              ))
+        print(self.LEXICAL_ANALYSIS.findall(self.lines))
+
+
+
+
+        print("PRINTING FILTER")
+        print(filter)  # Prints text
         token_list = []
         for line in filter:
             token_list.append(self.distinct_token(line))
+        print(token_list)
         return token_list
 
     def replace(self):
@@ -114,3 +141,4 @@ class JackTokenizer:
 
 #test
 #push
+#Wednesday afternoon
