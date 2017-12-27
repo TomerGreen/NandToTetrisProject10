@@ -15,12 +15,12 @@ class JackTokenizer:
     KeywordsCodes = {"class", "constructor", "function", "method", "field", "static", "var", "int", "char", "boolean",
                  "void", "true", "false", "null", "this", "let", "do", "if", "else", "while", "return"}
     SymbolsCodes = {'{', '}', '(', ')', '[', ']', '.', ',', ';', '+', '-', '*', '/', '&', '<', '>', '=', '~'}
-    keywordsRegex = '(?!\w)|'.join(KeywordsCodes) + '(?!\w)'
-    symbolsRegex = '[' + re.escape('|'.join(SymbolsCodes)) + ']'
-    integerRegex = r'\d+'
-    stringsRegex = r'"[^"\n]*"'
-    identifiersRegex = r'[\w]+'
-    word = re.compile(keywordsRegex + '|' + symbolsRegex + '|' + integerRegex + '|' + stringsRegex + '|' + identifiersRegex)
+    WORDS_REGEX = '(?!\w)|'.join(KeywordsCodes) + '(?!\w)'
+    SYMBOL_REGEX = '[' + re.escape('|'.join(SymbolsCodes)) + ']'
+    INT_REGEX = r'\d+'
+    STRING_REGEX = r'"[^"\n]*"'
+    IDENTIFIER_REGEX = r'[\w]+'
+    word = re.compile(WORDS_REGEX + '|' + SYMBOL_REGEX + '|' + INT_REGEX + '|' + STRING_REGEX + '|' + IDENTIFIER_REGEX)
 
     def __init__(self, inputFile):
         """
@@ -34,15 +34,15 @@ class JackTokenizer:
         self.tokenVal = ""
 
     def distinct_token(self, token):
-        if re.match(self.keywordsRegex, token):
+        if re.match(self.WORDS_REGEX, token):
             return self.KEYWORD, token
-        elif re.match(self.identifiersRegex, token):
+        elif re.match(self.IDENTIFIER_REGEX, token):
             return self.IDENTIFIER, token
-        elif re.match(self.stringsRegex, token):
+        elif re.match(self.STRING_REGEX, token):
             return self.STRING, token[1:-1]
-        elif re.match(self.integerRegex, token):
+        elif re.match(self.INT_REGEX, token):
             return self.INTEGER, token
-        elif re.match(self.symbolsRegex, token):
+        elif re.match(self.SYMBOL_REGEX, token):
             return self.SYMBOL, token
 
     def remove_comments(self):
@@ -80,16 +80,15 @@ class JackTokenizer:
     """
 
     def tokenizer(self):
-        print ("PRINTING REMOVE COMMENTS")
         self.remove_comments()
-        print(self.lines)  # Prints text
-        print (type(self.word))
-        print(type(self.lines
-              ))
-        print("debug here")
+        # print(self.lines)  # Prints text
+        # print (type(self.word))
+        # print(type(self.lines
+        #       ))
+        # print("debug here")
         words = re.findall(self.word, self.lines)
-        print(type(words))
-        print(words)
+        # print(type(words))
+        # print(words)
         # clean_code = ""
         # for word in words:
         #     for thing in word:
@@ -98,9 +97,9 @@ class JackTokenizer:
         # print(clean_code)
         token_list = []
         for line in words:
-            print(line)
+            # print(line)
             token_list.append(self.distinct_token(line))
-        print(token_list)
+        # print(token_list)
         return token_list
 
     def replace(self):
