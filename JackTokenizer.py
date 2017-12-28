@@ -30,6 +30,7 @@ class JackTokenizer:
         self.inputFile = open(inputFile, 'r')
         self.lines = self.inputFile.read()
         self.tokens = self.tokenizer()
+        self.replaceSymbols()
         self.tokenType = ""
         self.tokenVal = ""
 
@@ -97,21 +98,24 @@ class JackTokenizer:
         # print(clean_code)
         token_list = []
         for line in words:
-            # print(line)
             token_list.append(self.distinct_token(line))
         # print(token_list)
         return token_list
 
-    def replace(self):
+    def replaceSymbols(self):
+        replaced_tokens = []
         for token in self.tokens:
             if token[1] == '&':
-                return token[0], '&amp;'
+                replaced_tokens.append((token[0], '&amp;'))
             elif token[1] == '"':
-                return token[0],'&quot;'
+                replaced_tokens.append((token[0], '&quot;'))
             elif token[1] == '>':
-                return token[0], '&gt;'
+                replaced_tokens.append((token[0], '&gt;'))
             elif token[1] == '<':
-                return token[0],'&lt'
+                replaced_tokens.append((token[0], '&lt;'))
+            else:
+                replaced_tokens.append(token)
+        self.tokens = replaced_tokens
 
     def hasMoreTokens(self):
         """

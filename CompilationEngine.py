@@ -20,6 +20,7 @@ class CompilationEngine:
         newNode.text = str(text)
 
     def compileClass(self):
+        print(self.tokenizer.tokens)
         self.tokenizer.advance()
         self.writeNode()  # Writes 'class'
         self.tokenizer.advance()
