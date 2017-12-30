@@ -19,7 +19,7 @@ class JackTokenizer:
     SYMBOL_REGEX = '[' + re.escape('|'.join(SymbolsCodes)) + ']'
     INT_REGEX = r'\d+'
     STRING_REGEX = r'"[^"\n]*"'
-    IDENTIFIER_REGEX = r'[\w]+'
+    IDENTIFIER_REGEX = r'[A-Za-z_]\w*'
     word = re.compile(WORDS_REGEX + '|' + SYMBOL_REGEX + '|' + INT_REGEX + '|' + STRING_REGEX + '|' + IDENTIFIER_REGEX)
 
     def __init__(self, inputFile):

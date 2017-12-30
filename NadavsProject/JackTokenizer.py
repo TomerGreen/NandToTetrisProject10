@@ -2,7 +2,7 @@
 # Imports
 ############################################################
 
-import Consts as co
+import NadavsProject.Consts as co
 import re
 
 
@@ -27,9 +27,25 @@ class JackTokenizer:
         """
         self._fileReader = open(filename, 'r')
         self._lines = self._fileReader.readlines()
-        self._tokens = self._tokenizer(self._lines)
+        self.tokens = self._tokenizer(self._lines)
         self.tokenType = co.TOKEN_ERROR
         self.tokenVal = ''
+
+        ##### TOMER'S ADDITION #####
+        elementDict = {1: 'keyword', 2: 'symbol', 3:
+            'integerConstant', 4: 'stringConstant', 5:
+                           'identifier'}
+        symbDict = {"<": "&lt;", ">": "&gt;", "&": "&amp;"}
+        new_tokens = list()
+        for token in self.tokens:
+            type = elementDict[token[0]]
+            val = token[1]
+            if val in symbDict.keys():
+                val = symbDict[val]
+            new_token = type, val
+            new_tokens.append(new_token)
+        self.tokens = new_tokens
+
 
     ############################################################
     # private methods
@@ -92,7 +108,7 @@ class JackTokenizer:
                 return s
 
         pattern = re.compile(r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"', re.DOTALL | re.MULTILINE)
-        longline = re.sub(pattern, replacr, text)
+        longline = re.sub(pattern, replacer, text)
         lines = longline.split("\n")
         return lines
 
@@ -134,7 +150,7 @@ class JackTokenizer:
         :return:  return true if there are more tokens in input,
         false otherwise
         """
-        if len(self._tokens) == 0:
+        if len(self.tokens) == 0:
             return False
         else:
             return True
@@ -145,7 +161,7 @@ class JackTokenizer:
         :return: error if there are no more tokens
         """
         if self.hasMoreTokens() == True:
-            newToken = self._tokens.pop(0)
+            newToken = self.tokens.pop(0)
             self.tokenType = newToken[0]
             self.tokenVal = newToken[1]
         else:
