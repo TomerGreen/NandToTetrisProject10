@@ -76,7 +76,6 @@ class JackTokenizer:
         :return: a list of matches
         """
         wordsInLine = co.LEXICAL_ELEMENTS_REGEX.findall(line)
-        print(wordsInLine)
         retWords = []
         for word in wordsInLine:
             for subWord in word:
@@ -90,18 +89,13 @@ class JackTokenizer:
         :param text: line or lines of text
         :return: same text, no comments
         """
-        print("\nPRINTING TEXT\n")
-        print(text)
         line1 = ""
         for line in text:
             line1 = line1 + line
         text = line1
 
         def replacer(match):
-            print("PRINTING MATCH\n")
-            print(match)
             s = match.group(0)
-            print("PRINTING MATCH.GROUP(0)")
             if s.startswith('/'):
                 return " "  # note: a space and not an empty string
             else:
@@ -164,6 +158,7 @@ class JackTokenizer:
             newToken = self.tokens.pop(0)
             self.tokenType = newToken[0]
             self.tokenVal = newToken[1]
+            print ("Nadav's advanced to: " + self.tokenType + ", " + self.tokenVal)
         else:
             return co.TOKEN_ERROR
 

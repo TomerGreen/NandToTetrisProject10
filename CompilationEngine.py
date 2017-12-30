@@ -18,7 +18,7 @@ class CompilationEngine:
             text = str(self.tokenizer.tokenVal)
         newNode = et.SubElement(self.current_node, str(tag))
         newNode.text = str(text)
-        print("Writing " + tag + ", " + text)
+        #print("Writing " + tag + ", " + text)
 
     def compileClass(self):
         self.tokenizer.advance()
@@ -244,7 +244,7 @@ class CompilationEngine:
         parent = self.current_node
         self.current_node = et.SubElement(self.current_node, 'expression')
         self.compileTerm()  # When this finishes the current token is either an operator or: ')', ';' or ']'.
-        while self.tokenizer.tokenVal in ['+', '-', '*', '/', '&amp;', '|', '&lt;', '&gt;', '=']:
+        while self.tokenizer.tokenVal in ['+', '-', '*', '/', '|', '&', '<', '>', '=']:
             self.writeNode()  # Writes the operator
             self.tokenizer.advance()  # Advances to the first token in a term.
             self.compileTerm()  # When this finishes the current token is an operator or ')', ';' or ']'.

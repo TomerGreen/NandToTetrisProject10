@@ -30,7 +30,7 @@ class JackTokenizer:
         self.inputFile = open(inputFile, 'r')
         self.lines = self.inputFile.read()
         self.tokens = self.tokenizer()
-        self.replaceSymbols()
+        #self.replaceSymbols()
         self.tokenType = ""
         self.tokenVal = ""
 
@@ -134,16 +134,16 @@ class JackTokenizer:
         :return:
         """
         if self.hasMoreTokens():
-            tokenData = self.tokens.pop()
+            tokenData = self.tokens.pop(0)
             self.tokenVal = tokenData[1]
             self.tokenType = tokenData[0]
+            #print("Yarden's advanced to: " + self.tokenType + ", " + self.tokenVal)
 
     def tokenVal(self):
         return self.tokenVal
 
     def tokenType(self):
         return self.tokenType
-
 
 
 #test
