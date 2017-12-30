@@ -18,7 +18,6 @@ class CompilationEngine:
             text = str(self.tokenizer.tokenVal)
         newNode = et.SubElement(self.current_node, str(tag))
         newNode.text = str(text)
-        #print("Writing " + tag + ", " + text)
 
     def compileClass(self):
         self.tokenizer.advance()

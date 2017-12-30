@@ -30,7 +30,6 @@ class JackTokenizer:
         self.inputFile = open(inputFile, 'r')
         self.lines = self.inputFile.read()
         self.tokens = self.tokenizer()
-        #self.replaceSymbols()
         self.tokenType = ""
         self.tokenVal = ""
 
@@ -60,62 +59,13 @@ class JackTokenizer:
         self.lines = re.sub(pattern, ignore_normal_strings, full_text)
 
 
-    """
-    def remove_comments(self):
-        text_with_no_comments = ''
-        for i in range(len(self.lines)):
-            char = self.lines[i]
-            if char == "\"":
-                end = self.lines.find("\"", i +1)
-                text_with_no_comments += self.lines[i:end + 1]
-            elif char == "/":
-                if self.lines[i + 1] == "/":
-                    text_with_no_comments += " "
-                elif self.lines[i + 1] == "*":
-                    text_with_no_comments += " "
-                else:
-                    text_with_no_comments += self.lines[i]
-            else:
-                text_with_no_comments += self.lines[i]
-        return text_with_no_comments
-    """
-
     def tokenizer(self):
         self.remove_comments()
-        # print(self.lines)  # Prints text
-        # print (type(self.word))
-        # print(type(self.lines
-        #       ))
-        # print("debug here")
         words = re.findall(self.word, self.lines)
-        # print(type(words))
-        # print(words)
-        # clean_code = ""
-        # for word in words:
-        #     for thing in word:
-        #         if len(thing) > 0:
-        #             clean_code += thing + " "
-        # print(clean_code)
         token_list = []
         for line in words:
             token_list.append(self.distinct_token(line))
-        # print(token_list)
         return token_list
-
-    def replaceSymbols(self):
-        replaced_tokens = []
-        for token in self.tokens:
-            if token[1] == '&':
-                replaced_tokens.append((token[0], '&amp;'))
-            elif token[1] == '"':
-                replaced_tokens.append((token[0], '&quot;'))
-            elif token[1] == '>':
-                replaced_tokens.append((token[0], '&gt;'))
-            elif token[1] == '<':
-                replaced_tokens.append((token[0], '&lt;'))
-            else:
-                replaced_tokens.append(token)
-        self.tokens = replaced_tokens
 
     def hasMoreTokens(self):
         """
@@ -137,7 +87,6 @@ class JackTokenizer:
             tokenData = self.tokens.pop(0)
             self.tokenVal = tokenData[1]
             self.tokenType = tokenData[0]
-            #print("Yarden's advanced to: " + self.tokenType + ", " + self.tokenVal)
 
     def tokenVal(self):
         return self.tokenVal
@@ -150,5 +99,6 @@ class JackTokenizer:
 #push
 #Wednesday afternoon
 #anthor try
+#done
 
 
